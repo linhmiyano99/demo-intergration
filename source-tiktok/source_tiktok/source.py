@@ -19,7 +19,7 @@ from airbyte_cdk.models import (
     Type,
 )
 from airbyte_cdk.sources import Source
-from airbyte_cdk.models import ConnectorSpecification, SyncMode
+from airbyte_protocol.models import SyncMode
 
 
 class SourceTiktok(Source):
@@ -62,16 +62,21 @@ class SourceTiktok(Source):
         """
         streams = []
 
-        stream_name = "TableName"  # Example
+        stream_name = "Tiktok data"  # Example
         json_schema = {  # Example
             "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
-            "properties": {"columnName": {"type": "string"}},
+            "properties": config,
         }
 
         # Not Implemented
 
-        streams.append(AirbyteStream(name=stream_name, json_schema=json_schema))
+        streams.append(
+            AirbyteStream(
+                name=stream_name,
+                json_schema=json_schema,
+                supported_sync_modes=[SyncMode.incremental],
+                default_cursor_field=["overwrite"]))
         return AirbyteCatalog(streams=streams)
 
     def read(
@@ -96,12 +101,16 @@ class SourceTiktok(Source):
 
         :return: A generator that produces a stream of AirbyteRecordMessage contained in AirbyteMessage object.
         """
-        stream_name = "TableName"  # Example
-        data = {"columnName": "Hello World"}  # Example
 
         # Not Implemented
-
-        yield AirbyteMessage(
-            type=Type.RECORD,
-            record=AirbyteRecordMessage(stream=stream_name, data=data, emitted_at=int(datetime.now().timestamp()) * 1000),
-        )
+        for stream in catalog.streams:
+            stream_name = stream.stream.name
+            data = stream.stream.json_schema
+            yield AirbyteMessage(
+                type=Type.RECORD,
+                record=AirbyteRecordMessage(
+                    stream=stream_name,
+                    data=data,
+                    emitted_at=int(datetime.now().timestamp()) * 1000
+                ),
+            )

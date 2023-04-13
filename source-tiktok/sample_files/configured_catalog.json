@@ -1,0 +1,33 @@
+{
+    "streams": [
+        {
+            "stream": {
+                "name":"TikTok data",
+                "json_schema": {
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "type": "object",
+                    "properties": {
+                        "auth_type":{
+                            "type":"string"
+                        },
+                        "app_id":{
+                            "type":"string"
+                        },
+                        "secret":{
+                            "type":"string"
+                        },
+                        "access_token":{
+                            "type":"string"
+                        },
+                        "advertiser_id":{
+                            "type":"string"
+                        }
+                    }
+                },
+                "supported_sync_modes":["incremental"]
+            },
+            "sync_mode":"incremental",
+            "destination_sync_mode":"append"
+        }
+    ]
+  }
