@@ -3,6 +3,6 @@
 #
 
 
-from .source import SourceTiktok
+from .source import SourceSpotify
 
-__all__ = ["SourceTiktok"]
+__all__ = ["SourceSpotify"]

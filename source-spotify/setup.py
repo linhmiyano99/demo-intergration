@@ -15,8 +15,8 @@ TEST_REQUIREMENTS = [
 ]
 
 setup(
-    name="source_tiktok",
-    description="Source implementation for Tiktok.",
+    name="source_spotify",
+    description="Source implementation for Spotify.",
     author="Airbyte",
     author_email="contact@airbyte.io",
     packages=find_packages(),

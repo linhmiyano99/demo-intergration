@@ -5,5 +5,5 @@ plugins {
 }
 
 airbytePython {
-    moduleDirectory 'source_tiktok_singer'
+    moduleDirectory 'source_spotify_singer'
 }
