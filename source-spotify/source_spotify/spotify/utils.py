@@ -60,8 +60,12 @@ def get_spotify_artist_data(token_type, access_token, endpoint):
         raise error
 
 
-def get_spotify_search_data(query, search_type, limit, offset, token_type, access_token, endpoint):
+def get_spotify_search_data(query, search_type, token_type, access_token, endpoint, limit=None, offset=None):
     print("get_spotify_search_data", query, type(query))
+
+    url = f"{endpoint}?q={query}&type={search_type}" \
+        if (limit is None or offset is None) \
+        else f"{endpoint}?q={query}&type={search_type}&limit={limit}&offset={offset}"
 
     try:
         payload = ""
@@ -69,7 +73,7 @@ def get_spotify_search_data(query, search_type, limit, offset, token_type, acces
             'Authorization': f'{token_type} {access_token}'}
         search_data_response = requests.request(
             "GET",
-            url=f"{endpoint}?q={query}&type={search_type}&limit={limit}&offset={offset}",
+            url=url,
             headers=headers,
             data=payload)
 

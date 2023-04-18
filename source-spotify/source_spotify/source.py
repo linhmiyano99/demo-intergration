@@ -21,7 +21,7 @@ from airbyte_cdk.models import (
     Type,
 )
 from airbyte_cdk.sources import Source
-from airbyte_protocol.models import SyncMode
+from airbyte_protocol.models import SyncMode, ConfiguredAirbyteStream
 from .spotify import utils, constants
 
 
@@ -129,6 +129,116 @@ class SourceSpotify(Source):
                 default_cursor_field=["overwrite"]))
         return AirbyteCatalog(streams=streams)
 
+    def incremental_load(
+            self, logger: AirbyteLogger, configured_stream: ConfiguredAirbyteStream, state: Dict[str, any]
+    ) -> Generator[AirbyteMessage, None, None]:
+        stream_name = configured_stream.stream.name
+        if state and stream_name in state:
+            self.offset = state[stream_name].get('offset', 0)
+        state[stream_name] = {'offset': self.offset}
+        is_finish = False
+        while self.size_record_countdown > 0 and not is_finish:
+            if not self.access_token_expire_time or self.access_token_expire_time < time.time():
+                self.update_authentication_data()
+
+            limit = self.size_record_countdown
+            if limit is None or limit > constants.SPOTIFY_SIZE_PAGE:
+                limit = constants.SPOTIFY_SIZE_PAGE
+
+            is_success = False
+            retrial = 0
+            while retrial < 2 and not is_success:
+                retrial += 1
+                try:
+                    search_data_batch, error = utils.get_spotify_search_data(
+                        query="a",
+                        search_type=constants.SPOTIFY_SEARCH_TYPE_TRACK,
+                        limit=limit,
+                        offset=self.offset,
+                        token_type=self.token_type,
+                        access_token=self.access_token,
+                        endpoint=constants.SPOTIFY_SEARCH_ENDPOINT)
+
+                    if error is not None:
+                        # there is no data return
+                        if error == 400:
+                            is_finish = True
+                        else:
+                            error = f"error: {error}"
+                            print(error)
+                            yield AirbyteConnectionStatus(
+                                status=Status.FAILED,
+                                message=f"An exception occurred: {error} trace = {traceback.format_exc()}")
+
+                    else:
+                        if search_data_batch['tracks'] is not None \
+                                and search_data_batch['tracks']['items'] is not None:
+                            for data in search_data_batch['tracks']['items']:
+                                yield AirbyteMessage(
+                                    type=Type.RECORD,
+                                    record=AirbyteRecordMessage(
+                                        stream=stream_name,
+                                        data={'$data': data},
+                                        emitted_at=int(datetime.now().timestamp()) * 1000))
+                                state[stream_name].update({'offset': self.offset})
+                                self.offset += 1
+                                self.size_record_countdown -= 1
+                        else:
+                            print(search_data_batch)
+                        is_success = True
+                except Exception as error:
+                    print(error)
+                    if self.access_token_expire_time < time.time():
+                        self.update_authentication_data()
+
+    def full_refresh_load(
+            self, logger: AirbyteLogger, configured_stream: ConfiguredAirbyteStream,
+    ) -> Generator[AirbyteMessage, None, None]:
+
+        stream_name = configured_stream.stream.name
+
+        if not self.access_token_expire_time or self.access_token_expire_time < time.time():
+            self.update_authentication_data()
+
+        is_success = False
+        retrial = 0
+        while retrial < 2 and not is_success:
+            retrial += 1
+            try:
+                search_data_batch, error = utils.get_spotify_search_data(
+                    query="a",
+                    search_type=constants.SPOTIFY_SEARCH_TYPE_TRACK,
+                    token_type=self.token_type,
+                    access_token=self.access_token,
+                    endpoint=constants.SPOTIFY_SEARCH_ENDPOINT)
+
+                if error is not None:
+                    error = f"error: {error}"
+                    print(error)
+                    yield AirbyteConnectionStatus(
+                        status=Status.FAILED,
+                        message=f"An exception occurred: {error} trace = {traceback.format_exc()}")
+
+                else:
+                    if search_data_batch['tracks'] is not None \
+                            and search_data_batch['tracks']['items'] is not None:
+                        for data in search_data_batch['tracks']['items']:
+                            yield AirbyteMessage(
+                                type=Type.RECORD,
+                                record=AirbyteRecordMessage(
+                                    stream=stream_name,
+                                    data={'$data': data},
+                                    emitted_at=int(datetime.now().timestamp()) * 1000))
+                            self.offset += 1
+                            self.size_record_countdown -= 1
+                    else:
+                        print(search_data_batch)
+                    is_success = True
+            except Exception as error:
+                print(error)
+                if self.access_token_expire_time < time.time():
+                    self.update_authentication_data()
+
     def read(
             self, logger: AirbyteLogger, config: json, catalog: ConfiguredAirbyteCatalog, state: Dict[str, any]
     ) -> Generator[AirbyteMessage, None, None]:
@@ -155,62 +265,13 @@ class SourceSpotify(Source):
         self.load_config_data(config=config)
 
         # Not Implemented
-        for stream in catalog.streams:
-            stream_name = stream.stream.name
-            if state and stream_name in state:
-                self.offset = state[stream_name].get('offset', 0)
-            state[stream_name] = {'offset': self.offset}
-            is_finish = False
-            while self.size_record_countdown > 0 and not is_finish:
-                if not self.access_token_expire_time or self.access_token_expire_time < time.time():
-                    self.update_authentication_data()
-
-                limit = self.size_record_countdown
-                if limit is None or limit > constants.SPOTIFY_SIZE_PAGE:
-                    limit = constants.SPOTIFY_SIZE_PAGE
-
-                is_success = False
-                retrial = 0
-                while retrial < 2 and not is_success:
-                    retrial += 1
-                    try:
-                        search_data_batch, error = utils.get_spotify_search_data(
-                            query="a",
-                            search_type=constants.SPOTIFY_SEARCH_TYPE_TRACK,
-                            limit=limit,
-                            offset=self.offset,
-                            token_type=self.token_type,
-                            access_token=self.access_token,
-                            endpoint=constants.SPOTIFY_SEARCH_ENDPOINT)
-
-                        if error is not None:
-                            # there is no data return
-                            if error == 400:
-                                is_finish = True
-                            else:
-                                error = f"error: {error}"
-                                print(error)
-                                yield AirbyteConnectionStatus(
-                                    status=Status.FAILED,
-                                    message=f"An exception occurred: {error} trace = {traceback.format_exc()}")
-
-                        else:
-                            if search_data_batch['tracks'] is not None \
-                                    and search_data_batch['tracks']['items'] is not None:
-                                for data in search_data_batch['tracks']['items']:
-                                    yield AirbyteMessage(
-                                        type=Type.RECORD,
-                                        record=AirbyteRecordMessage(
-                                            stream=stream_name,
-                                            data={'$data': data},
-                                            emitted_at=int(datetime.now().timestamp()) * 1000))
-                                    state[stream_name].update({'offset': self.offset})
-                                    self.offset += 1
-                                    self.size_record_countdown -= 1
-                            else:
-                                print(search_data_batch)
-                            is_success = True
-                    except Exception as error:
-                        print(error)
-                        if self.access_token_expire_time < time.time():
-                            self.update_authentication_data()
+        for configured_stream in catalog.streams:
+            if configured_stream.sync_mode == SyncMode.incremental:
+                yield from self.incremental_load(
+                    logger=logger,
+                    configured_stream=configured_stream,
+                    state=state)
+            else:
+                yield from self.full_refresh_load(
+                    logger=logger,
+                    configured_stream=configured_stream)
