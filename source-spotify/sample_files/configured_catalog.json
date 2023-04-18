@@ -17,13 +17,13 @@
                             "type":"object"
                         },
                         "disc_number":{
-                            "type":"int"
+                            "type":"number"
                         },
                         "duration_ms":{
-                            "type":"int"
+                            "type":"number"
                         },
                         "explicit":{
-                            "type":"bool"
+                            "type":"boolean"
                         },
                         "external_ids":{
                             "type":"object"
@@ -35,22 +35,22 @@
                             "type":"string"
                         },
                         "id":{
-                            "type":"int"
+                            "type":"number"
                         },
                         "is_local":{
-                            "type":"bool"
+                            "type":"boolean"
                         },
                         "name":{
                             "type":"string"
                         },
                         "popularity":{
-                            "type":"int"
+                            "type":"number"
                         },
                         "preview_url":{
                             "type":"string"
                         },
                         "track_number":{
-                            "type":"int"
+                            "type":"number"
                         },
                         "type":{
                             "type":"string"
