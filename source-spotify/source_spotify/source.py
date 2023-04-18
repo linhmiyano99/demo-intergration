@@ -204,6 +204,7 @@ class SourceSpotify(Source):
                                             stream=stream_name,
                                             data={'$data': data},
                                             emitted_at=int(datetime.now().timestamp()) * 1000))
+                                    state[stream_name].update({'offset': self.offset})
                                     self.offset += 1
                                     self.size_record_countdown -= 1
                             else:

@@ -7,19 +7,55 @@
                     "$schema": "http://json-schema.org/draft-07/schema#",
                     "type": "object",
                     "properties": {
-                        "auth_type":{
+                        "album":{
+                            "type":"object"
+                        },
+                        "artists":{
+                            "type":"object"
+                        },
+                        "available_markets":{
+                            "type":"object"
+                        },
+                        "disc_number":{
+                            "type":"int"
+                        },
+                        "duration_ms":{
+                            "type":"int"
+                        },
+                        "explicit":{
+                            "type":"bool"
+                        },
+                        "external_ids":{
+                            "type":"object"
+                        },
+                        "external_urls":{
+                            "type":"object"
+                        },
+                        "href":{
                             "type":"string"
                         },
-                        "app_id":{
+                        "id":{
+                            "type":"int"
+                        },
+                        "is_local":{
+                            "type":"bool"
+                        },
+                        "name":{
                             "type":"string"
                         },
-                        "secret":{
+                        "popularity":{
+                            "type":"int"
+                        },
+                        "preview_url":{
                             "type":"string"
                         },
-                        "access_token":{
+                        "track_number":{
+                            "type":"int"
+                        },
+                        "type":{
                             "type":"string"
                         },
-                        "advertiser_id":{
+                        "url":{
                             "type":"string"
                         }
                     }

@@ -42,7 +42,7 @@ def get_spotify_artist_data(token_type, access_token, endpoint):
     try:
         payload = {}
         headers = {
-            'Authorization': f'{token_type}  {access_token}"'}
+            'Authorization': f'{token_type}  {access_token}'}
 
         artist_data_response = requests.request(
             "GET",
