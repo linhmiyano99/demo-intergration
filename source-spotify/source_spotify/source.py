@@ -33,7 +33,7 @@ class SourceSpotify(Source):
         self.client_id = None
         self.client_secret = None
         self.offset = 0
-        self.size_record_countdown = 100
+        self.size_record_countdown = constants.DEFAULT_SIZE_RECORD
 
     def load_config_data(self, config: json):
         self.client_id = config.get('credentials').get("client_id")
@@ -112,7 +112,7 @@ class SourceSpotify(Source):
         """
         streams = []
 
-        stream_name = "spotify.playlist"
+        stream_name = "spotify.search.track"
         json_schema = {  # Example
             "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
@@ -160,27 +160,39 @@ class SourceSpotify(Source):
             if state and stream_name in state:
                 self.offset = state[stream_name].get('offset', 0)
             state[stream_name] = {'offset': self.offset}
-            retrial = 0
-            while self.size_record_countdown > 0:
+            is_finish = False
+            while self.size_record_countdown > 0 and not is_finish:
                 if not self.access_token_expire_time or self.access_token_expire_time < time.time():
                     self.update_authentication_data()
-                is_success = False
 
+                limit = self.size_record_countdown
+                if limit is None or limit > constants.SPOTIFY_SIZE_PAGE:
+                    limit = constants.SPOTIFY_SIZE_PAGE
+
+                is_success = False
+                retrial = 0
                 while retrial < 2 and not is_success:
                     retrial += 1
                     try:
-                        search_data_batch, error = utils.get_spotify_playlist_data(
-                            playlist_id=constants.SPOTIFY_PLAYLIST_ID,
+                        search_data_batch, error = utils.get_spotify_search_data(
+                            query="a",
+                            search_type=constants.SPOTIFY_SEARCH_TYPE_TRACK,
+                            limit=limit,
+                            offset=self.offset,
                             token_type=self.token_type,
                             access_token=self.access_token,
-                            endpoint=constants.SPOTIFY_PLAYLIST_ENDPOINT)
+                            endpoint=constants.SPOTIFY_SEARCH_ENDPOINT)
 
                         if error is not None:
-                            error = f"error: {error}"
-                            print(error)
-                            yield AirbyteConnectionStatus(
-                                status=Status.FAILED,
-                                message=f"An exception occurred: {error} trace = {traceback.format_exc()}")
+                            # there is no data return
+                            if error == 400:
+                                is_finish = True
+                            else:
+                                error = f"error: {error}"
+                                print(error)
+                                yield AirbyteConnectionStatus(
+                                    status=Status.FAILED,
+                                    message=f"An exception occurred: {error} trace = {traceback.format_exc()}")
 
                         else:
                             if search_data_batch['tracks'] is not None \
@@ -194,6 +206,8 @@ class SourceSpotify(Source):
                                             emitted_at=int(datetime.now().timestamp()) * 1000))
                                     self.offset += 1
                                     self.size_record_countdown -= 1
+                            else:
+                                print(search_data_batch)
                             is_success = True
                     except Exception as error:
                         print(error)
