@@ -149,6 +149,7 @@ class SourceSpotify(Source):
                     spotify_response_message=search_data_batch
                 )
             elif error == 401:
+                self.update_authentication_data()
                 raise SpotifyInvalidAccessToken(
                     spotify_response_code=error,
                     spotify_response_message=search_data_batch
@@ -200,8 +201,7 @@ class SourceSpotify(Source):
                     is_finish = True
 
                 except SpotifyInvalidAccessToken:
-                    self.update_authentication_data()
-
+                    pass
                 except Exception as error:
                     yield AirbyteConnectionStatus(
                         status=Status.FAILED,
