@@ -60,12 +60,12 @@ def get_spotify_artist_data(token_type, access_token, endpoint):
         raise error
 
 
-def get_spotify_search_data(query, search_type, token_type, access_token, endpoint, limit=None, offset=None):
+def get_spotify_search_data(query, search_type, token_type, access_token, endpoint, offset=None):
     print("get_spotify_search_data", query, type(query))
 
     url = f"{endpoint}?q={query}&type={search_type}" \
-        if (limit is None or offset is None) \
-        else f"{endpoint}?q={query}&type={search_type}&limit={limit}&offset={offset}"
+        if offset is None \
+        else f"{endpoint}?q={query}&type={search_type}&offset={offset}"
 
     try:
         payload = ""
@@ -106,3 +106,15 @@ def get_spotify_playlist_data(playlist_id, token_type, access_token, endpoint):
                          f"playlist_data_response error = {playlist_data_response.text}"
     except Exception as error:
         raise error
+
+
+class SpotifyOutOfRangeWarning(Exception):
+    def __init__(self, spotify_response_code, spotify_response_message):
+        self.error_code = spotify_response_code
+        self.message = spotify_response_message
+
+
+class SpotifyInvalidAccessToken(Exception):
+    def __init__(self, spotify_response_code, spotify_response_message):
+        self.error_code = spotify_response_code
+        self.message = spotify_response_message
