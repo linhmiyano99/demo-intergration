@@ -1,0 +1,20 @@
+{
+  "documentationUrl": "https://docs.airbyte.com/integrations/destinations/spotify",
+  "supported_destination_sync_modes": ["overwrite", "append"],
+  "supportsIncremental": true,
+  "connectionSpecification": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Destination Spotify",
+    "type": "object",
+    "required": [],
+    "additionalProperties": false,
+    "properties": {
+      "username":{
+        "type":"string"
+      },
+      "password":{
+        "type":"string"
+      }
+    }
+  }
+}
