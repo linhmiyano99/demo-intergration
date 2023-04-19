@@ -79,11 +79,9 @@ def get_spotify_search_data(query, search_type, token_type, access_token, endpoi
 
         if search_data_response.status_code == 200:
             return search_data_response.json(), None
-        elif search_data_response.status_code == 400:
-            return search_data_response.text, search_data_response.status_code
         else:
-            return None, f"search_data_response status = {search_data_response.status_code}, " \
-                         f"search_data_response error = {search_data_response.text}"
+            return search_data_response.text, search_data_response.status_code
+
     except Exception as error:
         raise error
 
