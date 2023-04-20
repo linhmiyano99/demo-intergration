@@ -1,3 +1,4 @@
 source-spotify/secrets
 source-spotify/.pytest_cache
 destination-spotify/secrets
+.idea
