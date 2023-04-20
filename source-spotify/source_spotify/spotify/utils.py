@@ -5,7 +5,7 @@ import requests
 
 
 def get_spotify_access_token_data(client_id, client_secret, endpoint):
-    print("get_spotify_access_token_data")
+
     try:
         current_time = time.time()
         headers = {
@@ -22,8 +22,6 @@ def get_spotify_access_token_data(client_id, client_secret, endpoint):
             headers=headers,
             params=body)
 
-        print("body: ", body)
-
         if access_data_response.status_code == 200:
             access_data_info = access_data_response.json()
             access_token_expire_time = access_data_info["expires_in"] + current_time
@@ -38,7 +36,7 @@ def get_spotify_access_token_data(client_id, client_secret, endpoint):
 
 
 def get_spotify_artist_data(token_type, access_token, endpoint):
-    print("get_spotify_artist_data")
+
     try:
         payload = {}
         headers = {
@@ -51,7 +49,6 @@ def get_spotify_artist_data(token_type, access_token, endpoint):
             data=payload)
 
         if artist_data_response.status_code == 200:
-            print(f"artist_data_response = {artist_data_response.json()}")
             return artist_data_response.json(), None
         else:
             return None, f"artist_data_response status = {artist_data_response.status_code}, " \
@@ -65,8 +62,6 @@ def get_spotify_search_data(query, search_type, token_type, access_token, endpoi
     url = f"{endpoint}?q={query}&type={search_type}" \
         if offset is None \
         else f"{endpoint}?q={query}&type={search_type}&offset={offset}"
-
-    print(f"get_spotify_search_data url = {url}")
 
     try:
         payload = ""
@@ -88,7 +83,6 @@ def get_spotify_search_data(query, search_type, token_type, access_token, endpoi
 
 
 def get_spotify_playlist_data(playlist_id, token_type, access_token, endpoint):
-    print("get_spotify_playlist_data", playlist_id, type(playlist_id))
 
     try:
         payload = ""
@@ -119,4 +113,3 @@ class SpotifyInvalidAccessToken(Exception):
     def __init__(self, spotify_response_code, spotify_response_message):
         self.error_code = spotify_response_code
         self.message = spotify_response_message
-

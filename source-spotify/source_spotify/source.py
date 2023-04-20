@@ -133,8 +133,9 @@ class SourceSpotify(Source):
 
     @backoff(retries=2)
     def get_batch_data(
-            self, stream_name: str, state: Dict[str, any]
+            self, logger: AirbyteLogger, stream_name: str, state: Dict[str, any]
     ) -> Generator[AirbyteMessage, None, None]:
+        print("get_batch_data is processing")
 
         search_data_batch, error = utils.get_spotify_search_data(
             query=constants.SPOTIFY_SEARCH_KEYWORD,
@@ -151,7 +152,6 @@ class SourceSpotify(Source):
                     spotify_response_message=search_data_batch
                 )
             elif error == 401:
-                self.update_authentication_data()
                 raise SpotifyInvalidAccessToken(
                     spotify_response_code=error,
                     spotify_response_message=search_data_batch
@@ -173,11 +173,13 @@ class SourceSpotify(Source):
                     self.offset += 1
                     self.size_record_countdown -= 1
             else:
-                print(search_data_batch)
+                print(f"search_data_batch: {search_data_batch}")
 
     def incremental_load(
             self, logger: AirbyteLogger, configured_stream: ConfiguredAirbyteStream, state: Dict[str, any]
     ) -> Generator[AirbyteMessage, None, None]:
+        print("incremental_load is processing")
+
         stream_name = configured_stream.stream.name
         if state and stream_name in state:
             self.offset = state[stream_name].get('offset', 0)
@@ -188,9 +190,8 @@ class SourceSpotify(Source):
             self.update_authentication_data()
 
         while not is_finish:
-
             try:
-                yield from self.get_batch_data(stream_name=stream_name, state=state)
+                yield from self.get_batch_data(logger=logger, stream_name=stream_name, state=state)
 
             except SpotifyOutOfRangeWarning as e:
                 print(f"SpotifyOutOfRangeWarning e = {e}")
@@ -232,6 +233,7 @@ class SourceSpotify(Source):
 
         :return: A generator that produces a stream of AirbyteRecordMessage contained in AirbyteMessage object.
         """
+        print("read is processing")
 
         self.load_config_data(config=config)
 
