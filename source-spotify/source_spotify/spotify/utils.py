@@ -57,11 +57,11 @@ def get_spotify_artist_data(token_type, access_token, endpoint):
         raise error
 
 
-def get_spotify_search_data(query, search_type, token_type, access_token, endpoint, offset=None):
+def get_spotify_search_data(query, search_type, token_type, access_token, endpoint, limit=None, offset=None):
 
     url = f"{endpoint}?q={query}&type={search_type}" \
-        if offset is None \
-        else f"{endpoint}?q={query}&type={search_type}&offset={offset}"
+        if (offset is None or limit is None) \
+        else f"{endpoint}?q={query}&type={search_type}&limit={limit}&offset={offset}"
 
     try:
         payload = ""
@@ -76,7 +76,9 @@ def get_spotify_search_data(query, search_type, token_type, access_token, endpoi
         if search_data_response.status_code == 200:
             return search_data_response.json(), None
         else:
-            return search_data_response.text, search_data_response.status_code
+            if search_data_response.json().get("error") is not None:
+                return search_data_response.json().get("error") .get("message"), search_data_response.status_code
+            return search_data_response.json(), search_data_response.status_code
 
     except Exception as error:
         raise error

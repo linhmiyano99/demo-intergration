@@ -36,6 +36,7 @@ class SourceSpotify(Source):
         self.client_id = None
         self.client_secret = None
         self.offset = 0
+        self.limit_items_in_call = None
         self.size_record_countdown = constants.DEFAULT_SIZE_RECORD
 
     def load_config_data(self, config: json):
@@ -77,6 +78,7 @@ class SourceSpotify(Source):
             _, error = utils.get_spotify_search_data(
                 query="a",
                 search_type="track",
+                limit=1,
                 offset=0,
                 token_type=self.token_type,
                 access_token=self.access_token,
@@ -140,6 +142,7 @@ class SourceSpotify(Source):
         search_data_batch, error = utils.get_spotify_search_data(
             query=constants.SPOTIFY_SEARCH_KEYWORD,
             search_type=constants.SPOTIFY_SEARCH_TYPE_TRACK,
+            limit=self.limit_items_in_call,
             offset=self.offset,
             token_type=self.token_type,
             access_token=self.access_token,
@@ -184,21 +187,29 @@ class SourceSpotify(Source):
         if state and stream_name in state:
             self.offset = state[stream_name].get('offset', 0)
         state[stream_name] = {'offset': self.offset}
-        is_finish = False
 
         if not self.access_token_expire_time or self.access_token_expire_time < time.time():
             self.update_authentication_data()
 
+        self.limit_items_in_call = constants.SPOTIFY_SEARCH_DEFAULT_MAX_RESPONSE_SIZE
+
+        is_finish = False
         while not is_finish:
             try:
                 yield from self.get_batch_data(logger=logger, stream_name=stream_name, state=state)
 
             except SpotifyOutOfRangeWarning as e:
-                print(f"SpotifyOutOfRangeWarning e = {e}")
-                is_finish = True
+                print(f"SpotifyOutOfRangeWarning "
+                      f"limit_items_in_call = {self.limit_items_in_call }, "
+                      f"{e.error_code} = {str(e.message)}")
+
+                if self.limit_items_in_call > 1:
+                    self.limit_items_in_call = int(self.limit_items_in_call / 2)
+                else:
+                    is_finish = True
 
             except SpotifyInvalidAccessToken as e:
-                print(f"SpotifyInvalidAccessToken e = {e}")
+                print(f"SpotifyInvalidAccessToken {e.error_code} = {str(e.message)}")
                 self.update_authentication_data()
 
             except Exception as error:
@@ -244,6 +255,7 @@ class SourceSpotify(Source):
                     logger=logger,
                     configured_stream=configured_stream,
                     state=state)
+
             else:
                 yield from self.full_refresh_load(
                     logger=logger,
