@@ -23,8 +23,7 @@ from airbyte_cdk.models import (
 from airbyte_cdk.sources import Source
 from airbyte_protocol.models import SyncMode, ConfiguredAirbyteStream
 
-from .decorator.backoff import backoff
-from .spotify.utils import SpotifyInvalidAccessToken, SpotifyOutOfRangeWarning
+from .spotify.utils import SpotifyInvalidAccessToken, SpotifyOutOfRangeWarning, backoff
 from .spotify import utils, constants
 
 
@@ -133,7 +132,7 @@ class SourceSpotify(Source):
                 default_cursor_field=["overwrite"]))
         return AirbyteCatalog(streams=streams)
 
-    @backoff(retries=2)
+    @backoff(retries=2, delay=1)
     def get_batch_data(
             self, logger: AirbyteLogger, stream_name: str, state: Dict[str, any]
     ) -> Generator[AirbyteMessage, None, None]:

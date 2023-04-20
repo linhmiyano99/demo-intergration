@@ -5,7 +5,6 @@ import requests
 
 
 def get_spotify_access_token_data(client_id, client_secret, endpoint):
-
     try:
         current_time = time.time()
         headers = {
@@ -36,7 +35,6 @@ def get_spotify_access_token_data(client_id, client_secret, endpoint):
 
 
 def get_spotify_artist_data(token_type, access_token, endpoint):
-
     try:
         payload = {}
         headers = {
@@ -58,7 +56,6 @@ def get_spotify_artist_data(token_type, access_token, endpoint):
 
 
 def get_spotify_search_data(query, search_type, token_type, access_token, endpoint, limit=None, offset=None):
-
     url = f"{endpoint}?q={query}&type={search_type}" \
         if (offset is None or limit is None) \
         else f"{endpoint}?q={query}&type={search_type}&limit={limit}&offset={offset}"
@@ -77,7 +74,7 @@ def get_spotify_search_data(query, search_type, token_type, access_token, endpoi
             return search_data_response.json(), None
         else:
             if search_data_response.json().get("error") is not None:
-                return search_data_response.json().get("error") .get("message"), search_data_response.status_code
+                return search_data_response.json().get("error").get("message"), search_data_response.status_code
             return search_data_response.json(), search_data_response.status_code
 
     except Exception as error:
@@ -85,7 +82,6 @@ def get_spotify_search_data(query, search_type, token_type, access_token, endpoi
 
 
 def get_spotify_playlist_data(playlist_id, token_type, access_token, endpoint):
-
     try:
         payload = ""
         headers = {
@@ -115,3 +111,25 @@ class SpotifyInvalidAccessToken(Exception):
     def __init__(self, spotify_response_code, spotify_response_message):
         self.error_code = spotify_response_code
         self.message = spotify_response_message
+
+
+def backoff(retries=2, delay=1):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            is_success = False
+            retrial = 0
+            error = None
+            while retrial < retries and not is_success:
+                retrial += 1
+                try:
+                    return func(*args, **kwargs)
+                except SpotifyOutOfRangeWarning or SpotifyInvalidAccessToken as e:
+                    raise e
+                except Exception as e:
+                    error = e
+                    time.sleep(delay)
+            raise error
+
+        return wrapper
+
+    return decorator

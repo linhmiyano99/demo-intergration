@@ -15,6 +15,8 @@ source_spotify.egg-info/SOURCES.txt
 source_spotify.egg-info/dependency_links.txt
 source_spotify.egg-info/requires.txt
 source_spotify.egg-info/top_level.txt
-spotify/__init__.py
-spotify/constants.py
-spotify/utils.py
+source_spotify/decorator/__init__.py
+source_spotify/decorator/backoff.py
+source_spotify/spotify/__init__.py
+source_spotify/spotify/constants.py
+source_spotify/spotify/utils.py
