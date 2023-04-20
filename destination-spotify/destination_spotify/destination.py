@@ -38,8 +38,8 @@ class DestinationSpotify(Destination):
             if message.type == Type.STATE:
                 yield message
             else:
-                with open("message_data_test.json", "a") as outfile:
-                    outfile.write(json.dumps(message_data.get('$data')))
+                with open("message_data_test.txt", "a") as outfile:
+                    outfile.write(json.dumps(message_data.get('$data')) + "\n")
 
     def check(self, logger: AirbyteLogger, config: Mapping[str, Any]) -> AirbyteConnectionStatus:
         """

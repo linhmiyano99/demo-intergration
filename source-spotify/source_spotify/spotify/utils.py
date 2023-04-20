@@ -61,11 +61,12 @@ def get_spotify_artist_data(token_type, access_token, endpoint):
 
 
 def get_spotify_search_data(query, search_type, token_type, access_token, endpoint, offset=None):
-    print("get_spotify_search_data", query, type(query))
 
     url = f"{endpoint}?q={query}&type={search_type}" \
         if offset is None \
         else f"{endpoint}?q={query}&type={search_type}&offset={offset}"
+
+    print(f"get_spotify_search_data url = {url}")
 
     try:
         payload = ""
@@ -118,3 +119,4 @@ class SpotifyInvalidAccessToken(Exception):
     def __init__(self, spotify_response_code, spotify_response_message):
         self.error_code = spotify_response_code
         self.message = spotify_response_message
+

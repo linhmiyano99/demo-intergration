@@ -23,6 +23,7 @@ from airbyte_cdk.models import (
 from airbyte_cdk.sources import Source
 from airbyte_protocol.models import SyncMode, ConfiguredAirbyteStream
 
+from .decorator.backoff import backoff
 from .spotify.utils import SpotifyInvalidAccessToken, SpotifyOutOfRangeWarning
 from .spotify import utils, constants
 
@@ -130,6 +131,7 @@ class SourceSpotify(Source):
                 default_cursor_field=["overwrite"]))
         return AirbyteCatalog(streams=streams)
 
+    @backoff(retries=2)
     def get_batch_data(
             self, stream_name: str, state: Dict[str, any]
     ) -> Generator[AirbyteMessage, None, None]:
@@ -187,26 +189,21 @@ class SourceSpotify(Source):
 
         while not is_finish:
 
-            is_success = False
-            retrial = 0
-            while retrial < 2 and not is_success:
-                retrial += 1
+            try:
+                yield from self.get_batch_data(stream_name=stream_name, state=state)
 
-                try:
-                    yield from self.get_batch_data(stream_name=stream_name, state=state)
-                    is_success = True
+            except SpotifyOutOfRangeWarning as e:
+                print(f"SpotifyOutOfRangeWarning e = {e}")
+                is_finish = True
 
-                except SpotifyOutOfRangeWarning:
-                    is_success = True
-                    is_finish = True
+            except SpotifyInvalidAccessToken as e:
+                print(f"SpotifyInvalidAccessToken e = {e}")
+                self.update_authentication_data()
 
-                except SpotifyInvalidAccessToken:
-                    pass
-                except Exception as error:
-                    yield AirbyteConnectionStatus(
-                        status=Status.FAILED,
-                        message=f"An exception occurred: {error} trace = {traceback.format_exc()}")
-                    time.sleep(2)
+            except Exception as error:
+                yield AirbyteConnectionStatus(
+                    status=Status.FAILED,
+                    message=f"incremental_load An exception occurred: {str(error)} trace = {traceback.format_exc()}")
 
     def full_refresh_load(
             self, logger: AirbyteLogger, configured_stream: ConfiguredAirbyteStream,
