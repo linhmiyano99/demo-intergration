@@ -12,16 +12,13 @@ connectionSpecification:
       default: { }
       order: 0
       type: object
-      oneOf:
-        - title: OAuth2.0
-          type: object
-          properties:
-            client_id:
-              title: Client ID
-              type: string
-            client_secret:
-              title: Client Secret
-              type: string
-          required:
-            - client_id
-            - client_secret
+      properties:
+        client_id:
+          title: Client ID
+          type: string
+        client_secret:
+          title: Client Secret
+          type: string
+      required:
+        - client_id
+        - client_secret

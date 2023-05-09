@@ -117,9 +117,185 @@ class SourceSpotify(Source):
 
         stream_name = "spotify.search.track"
         json_schema = {  # Example
-            "$schema": "http://json-schema.org/draft-07/schema#",
+            "$schema": "http://json-schema.org/draft-03/schema#",
             "type": "object",
-            "properties": config,
+            "properties": {
+                "album": {
+                    "type": "object",
+                    "properties": {
+                        "album_type": {
+                            "type": "string",
+                            "description": "The type of the album: one of 'album', 'single', or 'compilation'."
+                        },
+                        "available_markets": {
+                            "type": "array",
+                            "description": "The markets in which the album is available: ISO 3166-1 alpha-2 country codes. Note that an album is considered available in a market when at least 1 of its tracks is available in that market.",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "external_urls": {
+                            "type": "object",
+                            "description": "Known external URLs for this album.",
+                            "properties": {
+                                "spotify": {
+                                    "type": "string",
+                                    "description": "The type of the URL, for example: 'spotify' - The Spotify URL for the object."
+                                }
+                            }
+                        },
+                        "href": {
+                            "type": "string",
+                            "description": "A link to the Web API endpoint providing full details of the album."
+                        },
+                        "id": {
+                            "type": "string",
+                            "description": "The Spotify ID for the album."
+                        },
+                        "images": {
+                            "type": "array",
+                            "description": "The cover art for the album in various sizes, widest first.",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "height": {
+                                        "type": "integer",
+                                        "description": "The image height in pixels. If unknown: null or not returned."
+                                    },
+                                    "url": {
+                                        "type": "string",
+                                        "description": "The source URL of the image."
+                                    },
+                                    "width": {
+                                        "type": "integer",
+                                        "description": "The image width in pixels. If unknown: null or not returned."
+                                    }
+                                }
+                            }
+                        },
+                        "name": {
+                            "type": "string",
+                            "description": "The name of the album."
+                        },
+                        "type": {
+                            "type": "string",
+                            "description": "The object type: 'album'."
+                        },
+                        "uri": {
+                            "type": "string",
+                            "description": "The Spotify URI for the album."
+                        }
+                    }
+                },
+                "artists": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "external_urls": {
+                                "type": "object",
+                                "description": "Known external URLs for this artist.",
+                                "spotify": {
+                                    "type": "string"
+                                }
+                            },
+                            "href": {
+                                "type": "string",
+                                "description": "A link to the Web API endpoint providing full details of the artist."
+                            },
+                            "id": {
+                                "type": "string",
+                                "description": "The Spotify ID for the artist."
+                            },
+                            "name": {
+                                "type": "string",
+                                "description": "The name of the artist."
+                            },
+                            "type": {
+                                "type": "string",
+                                "description": "The object type: 'artist'"
+                            },
+                            "uri": {
+                                "type": "string",
+                                "description": "The Spotify URI for the artist."
+                            }
+                        }
+                    }
+                },
+                "available_markets": {
+                    "type": "array",
+                    "description": "A list of the countries in which the track can be played, identified by their ISO 3166-1 alpha-2 code. ",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "disc_number": {
+                    "type": "integer",
+                    "description": "The disc number (usually 1 unless the album consists of more than one disc)."
+                },
+                "duration_ms": {
+                    "type": "integer",
+                    "description": "The track length in milliseconds."
+                },
+                "explicit": {
+                    "type": "boolean",
+                    "description": "Whether or not the track has explicit lyrics (true = yes it does; false = no it does not OR unknown)."
+                },
+                "external_ids": {
+                    "type": "object",
+                    "description": "Known external IDs for the track.",
+                    "properties": {
+                        "isrc": {
+                            "type": "string",
+                            "description": "The identifier type, for example: 'isrc' - International Standard Recording Code, 'ean' - International Article Number, 'upc' - Universal Product Code"
+                        }
+                    }
+                },
+                "external_urls": {
+                    "type": "object",
+                    "description": "Known external URLs for this track.",
+                    "properties": {
+                        "spotify": {
+                            "type": "string",
+                            "description": "The type of the URL, for example: 'spotify' - The Spotify URL for the object."
+                        }
+                    }
+                },
+                "href": {
+                    "type": "string",
+                    "description": "A link to the Web API endpoint providing full details of the track."
+                },
+                "id": {
+                    "type": "string",
+                    "description": "The Spotify ID for the track."
+                },
+                "is_local": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "The name of the track."
+                },
+                "popularity": {
+                    "type": "integer"
+                },
+                "preview_url": {
+                    "type": "string",
+                    "description": "A URL to a 30 second preview (MP3 format) of the track."
+                },
+                "track_number": {
+                    "type": "integer",
+                    "description": "The number of the track. If an album has several discs, the track number is the number on the specified disc."
+                },
+                "type": {
+                    "type": "string",
+                    "description": "The object type: 'track'."
+                },
+                "uri": {
+                    "type": "string",
+                    "description": "The Spotify URI for the track."
+                }
+            }
         }
 
         # Not Implemented
@@ -129,7 +305,7 @@ class SourceSpotify(Source):
                 name=stream_name,
                 json_schema=json_schema,
                 supported_sync_modes=[SyncMode.incremental],
-                default_cursor_field=["append_dedup"]))
+                default_cursor_field=["id"]))
         return AirbyteCatalog(streams=streams)
 
     @backoff(retries=2, delay=1)
@@ -169,7 +345,7 @@ class SourceSpotify(Source):
                         type=Type.RECORD,
                         record=AirbyteRecordMessage(
                             stream=stream_name,
-                            data={'$data': data},
+                            data=data,
                             emitted_at=int(datetime.now().timestamp()) * 1000))
                     state[stream_name].update({'offset': self.offset})
                     self.offset += 1
@@ -199,7 +375,7 @@ class SourceSpotify(Source):
 
             except SpotifyOutOfRangeWarning as e:
                 print(f"SpotifyOutOfRangeWarning "
-                      f"limit_items_in_call = {self.limit_items_in_call }, "
+                      f"limit_items_in_call = {self.limit_items_in_call}, "
                       f"{e.error_code} = {str(e.message)}")
 
                 if self.limit_items_in_call > 1:

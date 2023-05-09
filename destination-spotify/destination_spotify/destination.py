@@ -39,7 +39,7 @@ class DestinationSpotify(Destination):
                 yield message
             else:
                 with open("message_data_test.txt", "a") as outfile:
-                    outfile.write(json.dumps(message_data.get('$data')) + "\n")
+                    outfile.write(json.dumps(message_data))
 
     def check(self, logger: AirbyteLogger, config: Mapping[str, Any]) -> AirbyteConnectionStatus:
         """
