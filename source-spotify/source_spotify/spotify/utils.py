@@ -5,7 +5,6 @@ import traceback
 import requests
 
 
-
 def get_spotify_access_token_data(client_id, client_secret, endpoint):
     try:
         current_time = time.time()
@@ -138,8 +137,7 @@ def backoff(retries=2, delay=1):
 
 
 def get_current_timestamp():
-    # return datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-    return '2023-04-26T17:22:47.586Z'
+    return datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def get_event_from_track(track, namespace, timestamp):
