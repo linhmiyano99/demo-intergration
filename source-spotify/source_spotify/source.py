@@ -33,7 +33,7 @@ class SourceSpotify(Source):
     def __init__(self):
         self.offset = 0
         self.limit_items_in_call = None
-        self.spotify = SpotifyAPI()
+        self.spotify_api = SpotifyAPI()
 
     def check(self, logger: AirbyteLogger, config: json) -> AirbyteConnectionStatus:
         """
@@ -47,10 +47,10 @@ class SourceSpotify(Source):
 
         :return: AirbyteConnectionStatus indicating a Success or Failure
         """
-        self.spotify.load_config_data(config=config)
+        self.spotify_api.load_config_data(config=config)
         try:
             # Not Implemented
-            error = self.spotify.update_authentication_data()
+            error = self.spotify_api.update_authentication_data()
             if error is not None:
                 error = f"error: {error}"
                 print(error)
@@ -58,7 +58,7 @@ class SourceSpotify(Source):
                     status=Status.FAILED,
                     message=f"An exception occurred: {error} trace = {traceback.format_exc()}")
 
-            _, error = self.spotify.get_spotify_search_data(
+            _, error = self.spotify_api.get_spotify_search_data(
                 query=constants.SPOTIFY_SEARCH_KEYWORD,
                 search_type=constants.SPOTIFY_SEARCH_TYPE_TRACK,
                 limit=constants.SPOTIFY_SEARCH_DEFAULT_LIMIT,
@@ -295,7 +295,7 @@ class SourceSpotify(Source):
     ) -> Generator[AirbyteMessage, None, None]:
         print("get_batch_data is processing")
 
-        search_data_batch, error = self.spotify.get_spotify_search_data(
+        search_data_batch, error = self.spotify_api.get_spotify_search_data(
             query=constants.SPOTIFY_SEARCH_KEYWORD,
             search_type=constants.SPOTIFY_SEARCH_TYPE_TRACK,
             limit=self.limit_items_in_call,
@@ -350,8 +350,8 @@ class SourceSpotify(Source):
             self.offset = state[stream_name].get('offset', 0)
         state[stream_name] = {'offset': self.offset}
 
-        if not self.spotify.access_token_expire_time or self.spotify.access_token_expire_time < time.time():
-            self.spotify.update_authentication_data()
+        if not self.spotify_api.access_token_expire_time or self.spotify_api.access_token_expire_time < time.time():
+            self.spotify_api.update_authentication_data()
 
         self.limit_items_in_call = constants.SPOTIFY_SEARCH_DEFAULT_MAX_RESPONSE_SIZE
 
@@ -377,7 +377,7 @@ class SourceSpotify(Source):
 
             except SpotifyInvalidAccessToken as e:
                 print(f"SpotifyInvalidAccessToken {e.error_code} = {str(e.message)}")
-                self.spotify.update_authentication_data()
+                self.spotify_api.update_authentication_data()
 
             except Exception as error:
                 yield AirbyteConnectionStatus(
@@ -413,7 +413,7 @@ class SourceSpotify(Source):
         """
         print("read is processing")
 
-        self.spotify.load_config_data(config=config)
+        self.spotify_api.load_config_data(config=config)
 
         # Not Implemented
         for configured_stream in catalog.streams:
