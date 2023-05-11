@@ -23,9 +23,9 @@ from airbyte_cdk.models import (
 from airbyte_cdk.sources import Source
 from airbyte_protocol.models import SyncMode, ConfiguredAirbyteStream
 
-from .spotify.decorator import SpotifyInvalidAccessToken, SpotifyOutOfRangeWarning, backoff
-from .spotify import constants
-from .spotify.spotify_api import SpotifyAPI
+from source_spotify.spotify.decorator import SpotifyInvalidAccessToken, SpotifyOutOfRangeWarning, backoff
+from source_spotify.spotify import constants
+from source_spotify.spotify.spotify_api import SpotifyAPI
 
 
 class SourceSpotify(Source):
