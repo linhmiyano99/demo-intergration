@@ -33,7 +33,6 @@ class SourceSpotify(Source):
     def __init__(self):
         self.offset = 0
         self.limit_items_in_call = None
-        self.size_record_countdown = constants.DEFAULT_SIZE_RECORD
         self.spotify = SpotifyAPI()
 
     def check(self, logger: AirbyteLogger, config: json) -> AirbyteConnectionStatus:
@@ -60,10 +59,10 @@ class SourceSpotify(Source):
                     message=f"An exception occurred: {error} trace = {traceback.format_exc()}")
 
             _, error = self.spotify.get_spotify_search_data(
-                query="a",
-                search_type="track",
-                limit=1,
-                offset=0)
+                query=constants.SPOTIFY_SEARCH_KEYWORD,
+                search_type=constants.SPOTIFY_SEARCH_TYPE_TRACK,
+                limit=constants.SPOTIFY_SEARCH_DEFAULT_LIMIT,
+                offset=constants.SPOTIFY_SEARCH_START_DEFAULT_OFFSET)
 
             if error is not None:
                 error = f"error: {error}"
@@ -336,7 +335,6 @@ class SourceSpotify(Source):
                             emitted_at=int(datetime.now().timestamp()) * 1000))
                     state[stream_name].update({'offset': self.offset})
                     self.offset += 1
-                    self.size_record_countdown -= 1
             else:
                 print(f"search_data_batch: {search_data_batch}")
 
