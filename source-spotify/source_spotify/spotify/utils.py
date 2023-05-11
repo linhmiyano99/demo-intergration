@@ -1,7 +1,9 @@
+import datetime
 import time
 import traceback
 
 import requests
+
 
 
 def get_spotify_access_token_data(client_id, client_secret, endpoint):
@@ -133,3 +135,42 @@ def backoff(retries=2, delay=1):
         return wrapper
 
     return decorator
+
+
+def get_current_timestamp():
+    # return datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+    return '2023-04-26T17:22:47.586Z'
+
+
+def get_event_from_track(track, namespace, timestamp):
+    event = {
+        'eventType': 'SaveEntity',
+        'timeStamp': timestamp,
+        'target': {
+            'itemType': 'track',
+            'itemId': track['id'],
+            'properties': {
+                'album': track.get('album'),
+                'artists': track.get('artists'),
+                'available_markets': track.get('available_markets'),
+                'disc_number': track.get('disc_number'),
+                'duration_ms': track.get('duration_ms'),
+                'explicit': track.get('explicit'),
+                'external_ids': track.get('external_ids'),
+                'external_urls': track.get('external_urls'),
+                'href': track.get('href'),
+                'id': track.get('id'),
+                'is_local': track.get('is_local'),
+                'name': track.get('name'),
+                'popularity': track.get('popularity'),
+                'preview_url': track.get('preview_url'),
+                'track_number': track.get('track_number'),
+                'type': track.get('type'),
+                'url': track.get('url'),
+            }
+        }
+    }
+    _id = event['target']['itemId']
+    _type = event['target']['itemType']
+    event['itemId'] = f"{namespace}.{event['eventType']}.{_type}_{_id}"
+    return event

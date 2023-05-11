@@ -2,8 +2,64 @@
   "streams": [
     {
       "stream": {
-        "name": "spotify.search.track",
-        "json_schema": {},
+        "name": "search.track",
+        "json_schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "album":{
+                    "type":"object"
+                },
+                "artists":{
+                    "type":"object"
+                },
+                "available_markets":{
+                    "type":"object"
+                },
+                "disc_number":{
+                    "type":"number"
+                },
+                "duration_ms":{
+                    "type":"number"
+                },
+                "explicit":{
+                    "type":"boolean"
+                },
+                "external_ids":{
+                    "type":"object"
+                },
+                "external_urls":{
+                    "type":"object"
+                },
+                "href":{
+                    "type":"string"
+                },
+                "id":{
+                    "type":"number"
+                },
+                "is_local":{
+                    "type":"boolean"
+                },
+                "name":{
+                    "type":"string"
+                },
+                "popularity":{
+                    "type":"number"
+                },
+                "preview_url":{
+                    "type":"string"
+                },
+                "track_number":{
+                    "type":"number"
+                },
+                "type":{
+                    "type":"string"
+                },
+                "url":{
+                    "type":"string"
+                }
+            }
+        },
         "supported_sync_modes": ["incremental"],
         "source_defined_cursor": false,
         "default_cursor_field": []

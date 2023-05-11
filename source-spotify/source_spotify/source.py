@@ -115,7 +115,7 @@ class SourceSpotify(Source):
         """
         streams = []
 
-        stream_name = "spotify.search.track"
+        stream_name = "search.track"
         json_schema = {  # Example
             "$schema": "http://json-schema.org/draft-03/schema#",
             "type": "object",
@@ -310,7 +310,7 @@ class SourceSpotify(Source):
 
     @backoff(retries=2, delay=1)
     def get_batch_data(
-            self, logger: AirbyteLogger, stream_name: str, state: Dict[str, any]
+            self, logger: AirbyteLogger, stream_name: str, state: Dict[str, any], timestamp: str
     ) -> Generator[AirbyteMessage, None, None]:
         print("get_batch_data is processing")
 
@@ -341,11 +341,19 @@ class SourceSpotify(Source):
             if search_data_batch['tracks'] is not None \
                     and search_data_batch['tracks']['items'] is not None:
                 for data in search_data_batch['tracks']['items']:
+                    event = utils.get_event_from_track(
+                        track=data,
+                        namespace=constants.NAMESPACE,
+                        timestamp=timestamp
+                    )
+
+                    print(f"event info to destination {event}")
+
                     yield AirbyteMessage(
                         type=Type.RECORD,
                         record=AirbyteRecordMessage(
                             stream=stream_name,
-                            data=data,
+                            data=event,
                             emitted_at=int(datetime.now().timestamp()) * 1000))
                     state[stream_name].update({'offset': self.offset})
                     self.offset += 1
@@ -357,6 +365,8 @@ class SourceSpotify(Source):
             self, logger: AirbyteLogger, configured_stream: ConfiguredAirbyteStream, state: Dict[str, any]
     ) -> Generator[AirbyteMessage, None, None]:
         print("incremental_load is processing")
+
+        timestamp = utils.get_current_timestamp()
 
         stream_name = configured_stream.stream.name
         if state and stream_name in state:
@@ -371,7 +381,12 @@ class SourceSpotify(Source):
         is_finish = False
         while not is_finish:
             try:
-                yield from self.get_batch_data(logger=logger, stream_name=stream_name, state=state)
+                yield from self.get_batch_data(
+                    logger=logger,
+                    stream_name=stream_name,
+                    state=state,
+                    timestamp=timestamp
+                )
 
             except SpotifyOutOfRangeWarning as e:
                 print(f"SpotifyOutOfRangeWarning "
