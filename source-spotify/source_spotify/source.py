@@ -106,11 +106,16 @@ class SourceSpotify(Source):
                     "properties": {
                         "album_type": {
                             "type": "string",
-                            "description": "The type of the album: one of 'album', 'single', or 'compilation'."
+                            "description": "The type of the album: one of 'album', "
+                                           "'single', or 'compilation'."
                         },
                         "available_markets": {
                             "type": "array",
-                            "description": "The markets in which the album is available: ISO 3166-1 alpha-2 country codes. Note that an album is considered available in a market when at least 1 of its tracks is available in that market.",
+                            "description": "The markets in which the album is available: "
+                                           "ISO 3166-1 alpha-2 country codes. Note that "
+                                           "an album is considered available in a market "
+                                           "when at least 1 of its tracks is available in "
+                                           "that market.",
                             "items": {
                                 "type": "string"
                             }
@@ -121,13 +126,15 @@ class SourceSpotify(Source):
                             "properties": {
                                 "spotify": {
                                     "type": "string",
-                                    "description": "The type of the URL, for example: 'spotify' - The Spotify URL for the object."
+                                    "description": "The type of the URL, for example: "
+                                                   "'spotify' - The Spotify URL for the object."
                                 }
                             }
                         },
                         "href": {
                             "type": "string",
-                            "description": "A link to the Web API endpoint providing full details of the album."
+                            "description": "A link to the Web API endpoint providing "
+                                           "full details of the album."
                         },
                         "id": {
                             "type": "string",
@@ -141,7 +148,8 @@ class SourceSpotify(Source):
                                 "properties": {
                                     "height": {
                                         "type": "integer",
-                                        "description": "The image height in pixels. If unknown: null or not returned."
+                                        "description": "The image height in pixels. "
+                                                       "If unknown: null or not returned."
                                     },
                                     "url": {
                                         "type": "string",
@@ -149,7 +157,8 @@ class SourceSpotify(Source):
                                     },
                                     "width": {
                                         "type": "integer",
-                                        "description": "The image width in pixels. If unknown: null or not returned."
+                                        "description": "The image width in pixels. "
+                                                       "If unknown: null or not returned."
                                     }
                                 }
                             }
@@ -182,7 +191,8 @@ class SourceSpotify(Source):
                             },
                             "href": {
                                 "type": "string",
-                                "description": "A link to the Web API endpoint providing full details of the artist."
+                                "description": "A link to the Web API endpoint providing "
+                                               "full details of the artist."
                             },
                             "id": {
                                 "type": "string",
@@ -205,14 +215,16 @@ class SourceSpotify(Source):
                 },
                 "available_markets": {
                     "type": "array",
-                    "description": "A list of the countries in which the track can be played, identified by their ISO 3166-1 alpha-2 code. ",
+                    "description": "A list of the countries in which the track can be played, "
+                                   "identified by their ISO 3166-1 alpha-2 code. ",
                     "items": {
                         "type": "string"
                     }
                 },
                 "disc_number": {
                     "type": "integer",
-                    "description": "The disc number (usually 1 unless the album consists of more than one disc)."
+                    "description": "The disc number (usually 1 unless the album consists of "
+                                   "more than one disc)."
                 },
                 "duration_ms": {
                     "type": "integer",
@@ -220,7 +232,8 @@ class SourceSpotify(Source):
                 },
                 "explicit": {
                     "type": "boolean",
-                    "description": "Whether or not the track has explicit lyrics (true = yes it does; false = no it does not OR unknown)."
+                    "description": "Whether or not the track has explicit lyrics (true = yes "
+                                   "it does; false = no it does not OR unknown)."
                 },
                 "external_ids": {
                     "type": "object",
@@ -228,7 +241,10 @@ class SourceSpotify(Source):
                     "properties": {
                         "isrc": {
                             "type": "string",
-                            "description": "The identifier type, for example: 'isrc' - International Standard Recording Code, 'ean' - International Article Number, 'upc' - Universal Product Code"
+                            "description": "The identifier type, for example: 'isrc' - "
+                                           "International Standard Recording Code, 'ean' - "
+                                           "International Article Number, 'upc' - Universal "
+                                           "Product Code"
                         }
                     }
                 },
@@ -238,13 +254,15 @@ class SourceSpotify(Source):
                     "properties": {
                         "spotify": {
                             "type": "string",
-                            "description": "The type of the URL, for example: 'spotify' - The Spotify URL for the object."
+                            "description": "The type of the URL, for example: 'spotify' - "
+                                           "The Spotify URL for the object."
                         }
                     }
                 },
                 "href": {
                     "type": "string",
-                    "description": "A link to the Web API endpoint providing full details of the track."
+                    "description": "A link to the Web API endpoint providing "
+                                   "full details of the track."
                 },
                 "id": {
                     "type": "string",
@@ -266,7 +284,8 @@ class SourceSpotify(Source):
                 },
                 "track_number": {
                     "type": "integer",
-                    "description": "The number of the track. If an album has several discs, the track number is the number on the specified disc."
+                    "description": "The number of the track. If an album has several discs, "
+                                   "the track number is the number on the specified disc."
                 },
                 "type": {
                     "type": "string",
