@@ -109,8 +109,7 @@ class SourceSpotify(Source):
             AirbyteStream(
                 name=stream_name,
                 json_schema=json_schema,
-                supported_sync_modes=[SyncMode.incremental],
-                default_cursor_field=["id"]))
+                supported_sync_modes=[SyncMode.incremental]))
         return AirbyteCatalog(streams=streams)
 
     @backoff(retries=2, delay=1)
